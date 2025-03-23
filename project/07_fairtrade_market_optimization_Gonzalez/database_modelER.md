@@ -4,6 +4,23 @@ Este documento describe el modelo de base de datos para la plataforma de conexi�
 
 #### El modelo de base de datos propuesto para el sistema de mercados agroecológicos conecta productores rurales con consumidores urbanos mediante una estructura optimizada en PostgreSQL. La entidad Productor almacena información de los agricultores, incluyendo datos de contacto cifrados y certificaciones en un campo JSONB para mayor flexibilidad. La entidad Producto representa los bienes comercializados, relacionándose con Productor en una relación uno a muchos (1:N) e incluyendo atributos como descripción indexada para Full-Text Search y disponibilidad estacional en JSONB. Los consumidores pueden generar Pedidos, los cuales están vinculados a un Cliente y a un Productor, asegurando trazabilidad en la compra. La entidad Detalle_Pedido establece la relación muchos a muchos (N:M) entre Pedido y Producto, permitiendo registrar múltiples artículos en una orden. Además, tanto Productor como Cliente incluyen un campo de ubicación en formato PostGIS POINT para futuras optimizaciones geoespaciales. Este diseño garantiza escalabilidad, flexibilidad en la gestión de datos semi-estructurados y eficiencia en las búsquedas y consultas espaciales.
 
+## 📌 Explicación  
+
+✅ **Uso de `JSONB`**:  
+- En **Productor**, `certificaciones` permite almacenar información variable como certificaciones orgánicas.  
+- En **Producto**, `disponibilidad` permite gestionar temporadas de cosecha y cantidades esperadas.  
+
+✅ **Geolocalización con `PostGIS`**:  
+- **Productor** y **Cliente** tienen un campo `ubicacion` que almacena coordenadas en formato **POINT**.  
+- Se crean **índices GIST** para optimizar consultas espaciales.  
+
+✅ **Seguridad con `pgcrypto`**:  
+- Los campos **teléfono** y **email** están **cifrados** con `pgp_sym_encrypt`.  
+
+✅ **Optimización de consultas**:  
+- Índice **GIN** en `Producto.descripcion` para **búsquedas avanzadas**.  
+- Índice en `Pedido.estado` para **consultas rápidas de pedidos pendientes**.
+
 ## 📊 Diagrama ER  
 
 ```mermaid
@@ -59,19 +76,3 @@ erDiagram
     PRODUCTO ||--o{ DETALLE_PEDIDO : "forma parte de"
 
 
-## 📌 Explicación  
-
-✅ **Uso de `JSONB`**:  
-- En **Productor**, `certificaciones` permite almacenar información variable como certificaciones orgánicas.  
-- En **Producto**, `disponibilidad` permite gestionar temporadas de cosecha y cantidades esperadas.  
-
-✅ **Geolocalización con `PostGIS`**:  
-- **Productor** y **Cliente** tienen un campo `ubicacion` que almacena coordenadas en formato **POINT**.  
-- Se crean **índices GIST** para optimizar consultas espaciales.  
-
-✅ **Seguridad con `pgcrypto`**:  
-- Los campos **teléfono** y **email** están **cifrados** con `pgp_sym_encrypt`.  
-
-✅ **Optimización de consultas**:  
-- Índice **GIN** en `Producto.descripcion` para **búsquedas avanzadas**.  
-- Índice en `Pedido.estado` para **consultas rápidas de pedidos pendientes**.
