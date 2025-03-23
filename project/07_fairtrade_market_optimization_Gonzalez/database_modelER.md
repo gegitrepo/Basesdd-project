@@ -57,3 +57,21 @@ erDiagram
     PRODUCTOR ||--o{ PEDIDO : "recibe"
     PEDIDO ||--o{ DETALLE_PEDIDO : "contiene"
     PRODUCTO ||--o{ DETALLE_PEDIDO : "forma parte de"
+
+
+## 📌 Explicación  
+
+✅ **Uso de `JSONB`**:  
+- En **Productor**, `certificaciones` permite almacenar información variable como certificaciones orgánicas.  
+- En **Producto**, `disponibilidad` permite gestionar temporadas de cosecha y cantidades esperadas.  
+
+✅ **Geolocalización con `PostGIS`**:  
+- **Productor** y **Cliente** tienen un campo `ubicacion` que almacena coordenadas en formato **POINT**.  
+- Se crean **índices GIST** para optimizar consultas espaciales.  
+
+✅ **Seguridad con `pgcrypto`**:  
+- Los campos **teléfono** y **email** están **cifrados** con `pgp_sym_encrypt`.  
+
+✅ **Optimización de consultas**:  
+- Índice **GIN** en `Producto.descripcion` para **búsquedas avanzadas**.  
+- Índice en `Pedido.estado` para **consultas rápidas de pedidos pendientes**.
